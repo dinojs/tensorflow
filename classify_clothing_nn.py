@@ -41,10 +41,11 @@ print('Test accuracy:', test_acc)  # Test accuracy: 0.8810999989509583
 # Prediction
 predictions = model.predict(test_images)
 
-print(labels[np.argmax(predictions[5])])  # Index of the highest value in the list, 0 5th image, Trouser (correct)
+IMG_INDEX = 5
+print(labels[np.argmax(predictions[IMG_INDEX])])  # Index of the highest value in the list, Trouser (correct)
 
 plt.figure()  # Visualise imagine
-plt.imshow(test_images[5])  # [x] must match predictions[x]
+plt.imshow(test_images[IMG_INDEX])
 plt.colorbar()
 plt.grid(False)
 plt.show()
