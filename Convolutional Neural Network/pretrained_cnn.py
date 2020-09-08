@@ -4,7 +4,6 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 import numpy as np
 
-
 keras = tf.keras
 tfds.disable_progress_bar()
 
@@ -89,12 +88,12 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(lr=base_learning_rate),
               loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),  # Binary as we are using 2 classes
               metrics=['accuracy'])
 
-#%% Evaluation - We can evaluate the current model prior training
+# %% Evaluation - We can evaluate the current model prior training
 initial_epochs = 3
 validation_steps = 20
 loss0, accuracy0 = model.evaluate(validation_batches, steps=validation_steps)  # accuracy: 0.4594
 
-#%% Training
+# %% Training
 print("GPU is", "available" if tf.test.is_gpu_available() else "NOT AVAILABLE")
 history = model.fit(train_batches, epochs=initial_epochs, validation_data=validation_batches)
 acc = history.history['accuracy']
@@ -103,12 +102,21 @@ model.save("dogs_vs_cats.h5")  # h5 - format to save models in Keras, save so no
 
 # %% Prediction
 trained_model = tf.keras.models.load_model("dogs_vs_cats.h5")  # Load model
+class_names = ["cat", "dog"]
 
-class_name = ['dog', 'cat']
-predictions = trained_model.predict(validation_batches)
+image, label = train_batches.as_numpy_iterator().next()
+predictions = trained_model.predict_on_batch(image).flatten()
 
-IMG_INDEX = 665
-plt.figure()  # Visualise imagine
-plt.xlabel(class_name[np.argmax(predictions[IMG_INDEX])])  # Class name
-plt.imshow(validation_batches[IMG_INDEX])
-plt.show()
+predictions = tf.nn.sigmoid(predictions)
+predictions = tf.where(predictions < 0.5, 0, 1)
+
+print('Predictions:\n', predictions.numpy())
+print('Labels:\n', label)
+
+# plt.figure()
+# for i in range(20):
+#     ax = plt.subplot(3, 3, i + 1)
+#     plt.imshow(image[i].astype("uint8"))
+#     plt.title(class_names[predictions[i]])
+#     plt.axis("off")
+
